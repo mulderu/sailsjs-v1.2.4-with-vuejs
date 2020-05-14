@@ -1,0 +1,134 @@
+<v-content>
+  <v-container
+    class="fill-height"
+    fluid
+  >
+    <div class="d-flex flex-column mb-2">
+      <v-card class="mb-2">
+        <div>
+        </div>
+      </v-card>
+
+
+      <v-card class="mb-2">
+        <div class="text-center">
+          <v-dialog
+            v-model="dialog"
+            width="500"
+          >
+            <template v-slot:activator="{ on }">
+              <v-btn
+                color="red lighten-2"
+                dark
+                v-on="on"
+              >
+               [ Dialog Click Me ]
+              </v-btn>
+            </template>
+      
+            <v-card>
+              <v-card-title
+                class="headline grey lighten-2 black--text"
+                primary-title
+                dark
+              >
+                Privacy Policy
+              </v-card-title>
+      
+              <v-card-text>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+              </v-card-text>
+      
+              <v-divider></v-divider>
+      
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                  color="primary"
+                  text
+                  @click="dialog = false"
+                >
+                  I accept
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </div>
+      </v-card>
+      
+      
+
+      <!-- alert -->
+      <v-card class="mb-2">
+        <div>
+          <v-alert type="success">
+            I'm a success alert.
+          </v-alert>
+      
+          <v-alert type="info">
+            I'm an info alert.
+          </v-alert>
+      
+          <v-alert type="warning">
+            I'm a warning alert.
+          </v-alert>
+      
+          <v-alert type="error">
+            I'm an error alert.
+          </v-alert>
+        </div>
+      </v-card>
+
+      <!-- show components -->
+      <v-card class="mb-2">
+        <p>
+          <blog-post title="My journey with Vue"></blog-post>
+        </p>
+        <p>
+          <js-htime :at="pageLoadedAt-(2*365*24*60*60*1000)"></js-htime><br/>
+          <js-htime :at="pageLoadedAt-(2*365*24*60*60*1000)" format="timeago" short="true"></js-htime><br/>
+          <js-htime :at="pageLoadedAt-(2*365*24*60*60*1000)" format="calendar"></js-htime><br/>
+        </p>
+      </v-card>
+      <v-card class="mb-2">
+        <v-btn color="primary" @click="_basePost()"> post </v-btn>
+        <v-btn color="primary" @click="_baseUpdate()"> update </v-btn>
+        <v-btn color="primary" v-on:click="_baseDelete()"> delete </v-btn>
+      </v-card>
+      <v-card class="mb-2">
+          <h1 v-for="patient in patients" :key="patient.id" v-on:click="_baseSelect(patient)">
+            <i aria-hidden="true" class="v-icon mdi mdi-account" :class="{'blue--text': patient === current}"></i>
+            
+            {{ patient.id }} / {{ patient.name }} / {{ patient.sex }} / {{ patient.birthday }}
+          </h1>
+
+      </v-card>
+      <v-card class="mb-2 pl-10">
+        <div>data Table</div>
+
+
+
+          <v-simple-table fixed-header height="300px">
+            <template v-slot:default>
+              <thead>
+                <tr>
+                  <th class="text-left">Name</th>
+                  <th class="text-left">Sex</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in patients" :key="item.id">
+                  <td>{{ item.name }}</td>
+                  <td>{{ item.sex }}</td>
+                </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+        
+
+        
+      </v-card>
+    </div>
+    
+  </v-container>
+</v-content>

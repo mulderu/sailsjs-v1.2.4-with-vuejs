@@ -1,0 +1,180 @@
+<% if(typeof me === 'undefined') {
+  // In case we're displaying the 404 or 500 page and relevant code in the "custom" hook was not able to run,
+  // we make sure `me` exists.  This ensures we don't have to do `typeof` checks below.
+  var me = undefined;
+} %><!DOCTYPE html>
+<html>
+<head>
+    <% /* Certain scripts, normally analytics tools like Google Tag Manager and
+    Google Analytics, should only be included in production: */
+    if (sails.config.environment === 'production') { %>
+    <!-- Google Analytics, Google Tag Manager, etc. -->
+    <% }
+    /* Otherwise, any such scripts are excluded, and we instead inject a
+    robots/noindex meta tag to help prevent any unwanted visits from search engines. */
+    else { %>
+    <meta name="robots" content="noindex">
+    <% } %>
+  <link rel="stylesheet" href="/dependencies/fontawesome.css">
+  <link rel="stylesheet" href="/styles/importer.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+
+  <script src="/dependencies/lodash.js"></script>
+  <script src="/dependencies/jquery.min.js"></script>
+  <script src="/dependencies/moment.js"></script>
+  <script src="/dependencies/cloud.js"></script>
+  <script src="/js/cloud.setup.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+</head>
+<body>
+
+  <v-app id="app" v-cloak>
+    <v-navigation-drawer
+      v-model="drawer"
+      app
+      clipped
+    >
+      <v-list dense>
+        <v-list-item link>
+          <v-list-item-action>
+            <v-icon>mdi-view-dashboard</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Dashboard</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item link>
+          <v-list-item-action>
+            <v-icon>mdi-settings</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Settings</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
+    <v-app-bar
+      app
+      clipped-left
+    >
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
+      <v-toolbar-title style="margin-left: 300px">PHENO-AI-PACS</v-toolbar-title>
+      <v-card class="ml-10 title">Patient</v-card>
+    </v-app-bar>
+
+    <%- body %>
+
+    <v-footer app>
+      <span>&copy; 2020</span>
+    </v-footer>
+  </v-app>
+
+<script>
+
+function _loadScriptAll(scripts, callback) {
+  Promise.all(scripts.map(script => {
+    return new Promise((resolve, reject) => {
+      jQuery.getScript(script, resolve);
+    });
+  })).then(callback);
+}
+
+function _loadPage(opt, dependencies) {
+  _loadScriptAll(dependencies,
+    () => {
+    new Vue(_.extend({}, opt, pageVue())); 
+  });
+}
+
+async function _postData(url = '', data = {}) {
+  const response = await fetch(url, {
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    mode: 'cors', // no-cors, *cors, same-origin
+    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: 'same-origin', // include, *same-origin, omit
+    headers: {
+      'Content-Type': 'application/json'
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    redirect: 'follow', // manual, *follow, error
+    referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+    body: JSON.stringify(data) // body data type must match "Content-Type" header
+  });
+  return response.json(); // parses JSON response into native JavaScript objects
+}
+
+const _baseData = {
+  drawer: null,
+  current: null,
+  headers: [
+    { text: 'id', value: 'id' },
+    {
+      text: 'name',
+      align: 'start',
+      sortable: true,
+      value: 'name',
+    },
+    { text: 'sex', value: 'sex' },
+  ],
+};
+
+const _baseMethods = (model) => {
+  return {
+      async _baseSelect(item) {
+        this.current = item;
+        console.log('selected:', item.id)
+      },
+      async _basePost() {
+        const data = await model.with({cmd:'post',
+          data: {name: "mulder", sex: "M", birthday: "19990101"}})
+        console.log(data)
+        this.fetchData();
+      },
+
+      async _baseUpdate() {
+        const data = await mdel.with({cmd:'put', id: this.current.id,
+          data: {name: "scully", sex: "M", birthday: "19990101"}})
+        console.log(data)
+        this.fetchData();
+      },
+
+      async _baseDelete() {
+        const data = await model.with({cmd:'delete', id: this.current.id })
+        console.log(data)
+        this.fetchData();
+      },
+    };
+  };
+
+// main function
+const pid = _.last(location.href.split("/")).split("?")[0];
+const mainScript = `/js/pages/pacs/vue.${pid}.js`;
+console.log('mainScript:', mainScript);
+_loadScriptAll([
+  mainScript,
+], () => {
+      bootPage({
+        el: '#app',
+        vuetify: new Vuetify(),
+      });
+
+});
+
+// single
+// jQuery.getScript(`/js/pages/pacs/vue.${pid}.js`, () => {
+//       activePage({
+//         el: '#app',
+//         vuetify: new Vuetify(),
+//       });
+//     });
+
+</script>
+
+</body>
+</html>
